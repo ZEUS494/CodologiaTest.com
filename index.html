@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отправка данных в Google Таблицу</title>
+</head>
+<body>
+  <h1>Форма для отправки данных</h1>
+  <form id="dataForm">
+    <label for="name">Имя:</label>
+    <input type="text" id="name" name="name" required>
+    <br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <br>
+    <label for="message">Сообщение:</label>
+    <textarea id="message" name="message" required></textarea>
+    <br>
+    <button type="submit">Отправить</button>
+  </form>
+
+  <div id="response"></div>
+  <script>
+    // URL вашего веб-приложения из Google Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbz1P2RfDwdUBv0qBAcClq8BrwyPAC2Xi5suA3RaTLH8AiSj0oLeexLpqzt-u-3momAu/exec";
+
+    document.getElementById('dataForm').addEventListener('submit', async (event) => {
+      event.preventDefault(); // Предотвращаем стандартное поведение формы
+
+      // Собираем данные из формы
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value,
+      };
+
+      try {
+        const proxyURL = "https://cors-anywhere.herokuapp.com/";
+        const response = await fetch(proxyURL + scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        });
+        // Обрабатываем ответ от сервера
+        const result = await response.json();
+        document.getElementById('response').innerText =
+          result.status === "success"
+            ? "Данные успешно отправлены!"
+            : `Ошибка: ${result.message}`;
+
+      } catch (error) {
+        // Обрабатываем ошибки запроса
+        document.getElementById('response').innerText = "Ошибка при отправке данных!";
+        console.error("Ошибка:", error);
+      }
+    });
+  </script>
+</body>
+</html>
